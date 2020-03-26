@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
-import Example from './components/Example';
+// import Example from './components/Example';
+import SecureTextInput from './components/SecureTextInput';
 
-render(<Example />, document.getElementById('root'));
+render(<SecureTextInput />, document.getElementById('root'));

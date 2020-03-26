@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { anonymizeString } from '../../utils';
 import Bubble from './Bubble';
 import Image from './Image';
 import ImageContainer from './ImageContainer';
@@ -36,7 +37,7 @@ class TextStep extends Component {
 
   renderMessage = () => {
     const { step, steps, previousStep, triggerNextStep } = this.props;
-    const { component } = step;
+    const { component, sensitiveData } = step;
 
     if (component) {
       return React.cloneElement(component, {
@@ -47,7 +48,7 @@ class TextStep extends Component {
       });
     }
 
-    return this.getMessage();
+    return sensitiveData ? anonymizeString(this.getMessage()) : this.getMessage();
   };
 
   render() {
@@ -95,6 +96,7 @@ class TextStep extends Component {
 }
 
 TextStep.propTypes = {
+  sensitiveData: PropTypes.bool,
   avatarStyle: PropTypes.objectOf(PropTypes.any).isRequired,
   isFirst: PropTypes.bool.isRequired,
   isLast: PropTypes.bool.isRequired,
@@ -116,6 +118,7 @@ TextStep.propTypes = {
 };
 
 TextStep.defaultProps = {
+  sensitiveData: false,
   previousStep: {},
   previousValue: '',
   speak: () => {},

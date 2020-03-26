@@ -5,10 +5,9 @@ import { mount } from 'enzyme';
 import { TextStep } from '../../lib/steps_components';
 import Bubble from '../../lib/steps_components/text/Bubble';
 import Image from '../../lib/steps_components/text/Image';
+import { anonymizeString } from '../../lib/utils';
 
-const CustomComponent = () => (
-  <div />
-);
+const CustomComponent = () => <div />;
 
 describe('TextStep', () => {
   describe('Bot text', () => {
@@ -20,7 +19,7 @@ describe('TextStep', () => {
         delay: 1000,
         bubbleColor: '#eee',
         fontColor: '#000',
-        avatar: '',
+        avatar: ''
       },
       isFirst: true,
       isLast: true,
@@ -28,7 +27,7 @@ describe('TextStep', () => {
       hideUserAvatar: false,
       avatarStyle: {},
       bubbleStyle: {},
-      triggerNextStep: () => {},
+      triggerNextStep: () => {}
     };
 
     const wrapper = mount(<TextStep {...settings} />);
@@ -38,11 +37,11 @@ describe('TextStep', () => {
       expect(wrapper.find(TextStep).length).to.be.equal(1);
     });
 
-    it('should render bubble with background color equal \'#eee\'', () => {
+    it("should render bubble with background color equal '#eee'", () => {
       expect(wrapper.props().step.bubbleColor).to.be.equal('#eee');
     });
 
-    it('should render bubble with font color equal \'#000\'', () => {
+    it("should render bubble with font color equal '#000'", () => {
       expect(wrapper.props().step.fontColor).to.be.equal('#000');
     });
 
@@ -50,7 +49,7 @@ describe('TextStep', () => {
       expect(wrapper.find(Image).exists()).to.be.equal(true);
     });
 
-    it('should render bubble with message equal \'Hello\'', () => {
+    it("should render bubble with message equal 'Hello'", () => {
       expect(wrapper.find(Bubble).text()).to.be.equal('Hello');
     });
 
@@ -62,9 +61,7 @@ describe('TextStep', () => {
     });
 
     it('should render a without avatar', () => {
-      const tsWrapper = mount(
-        <TextStep {...settings} isFirst={false} hideBotAvatar={true} />,
-      );
+      const tsWrapper = mount(<TextStep {...settings} isFirst={false} hideBotAvatar={true} />);
       tsWrapper.setState({ loading: false });
 
       expect(tsWrapper.find(Image).exists()).to.be.equal(false);
@@ -87,7 +84,7 @@ describe('TextStep', () => {
         user: true,
         bubbleColor: '#eee',
         fontColor: '#000',
-        avatar: '',
+        avatar: ''
       },
       isFirst: false,
       isLast: true,
@@ -95,7 +92,7 @@ describe('TextStep', () => {
       hideUserAvatar: false,
       avatarStyle: {},
       bubbleStyle: {},
-      triggerNextStep: () => {},
+      triggerNextStep: () => {}
     };
 
     const wrapper = mount(<TextStep {...settings} />);
@@ -106,18 +103,14 @@ describe('TextStep', () => {
     });
 
     it('should render a first bubble', () => {
-      const tsWrapper = mount(
-        <TextStep {...settings} isFirst={true} isLast={false} />,
-      );
+      const tsWrapper = mount(<TextStep {...settings} isFirst={true} isLast={false} />);
       tsWrapper.setState({ loading: false });
 
       expect(tsWrapper.find(Image).exists()).to.be.equal(true);
     });
 
     it('should render a without avatar', () => {
-      const tsWrapper = mount(
-        <TextStep {...settings} showUserAvatar={false} />,
-      );
+      const tsWrapper = mount(<TextStep {...settings} showUserAvatar={false} />);
       tsWrapper.setState({ loading: false });
 
       expect(tsWrapper.find(Image).exists()).to.be.equal(false);
@@ -125,11 +118,27 @@ describe('TextStep', () => {
 
     it('should render a middle bubble', () => {
       const tsWrapper = mount(
-        <TextStep {...settings} isFirst={false} isLast={false} hideUserAvatar={true} />,
+        <TextStep {...settings} isFirst={false} isLast={false} hideUserAvatar={true} />
       );
       tsWrapper.setState({ loading: false });
 
       expect(tsWrapper.find(Image).exists()).to.be.equal(false);
+    });
+
+    it('it should render anonymized text on sensitive data', () => {
+      const withSensitiveData = {
+        ...settings,
+        step: {
+          ...settings.step,
+          sensitiveData: true
+        }
+      };
+      const tsWrapper = mount(
+        <TextStep {...withSensitiveData} isFirst={false} isLast={false} hideUserAvatar={true} />
+      );
+      tsWrapper.setState({ loading: false });
+
+      expect(tsWrapper.find(Bubble).text()).to.be.equal(anonymizeString('Hello'));
     });
   });
 
@@ -142,7 +151,7 @@ describe('TextStep', () => {
         user: true,
         bubbleColor: '#eee',
         fontColor: '#000',
-        avatar: '',
+        avatar: ''
       },
       isFirst: false,
       isLast: true,
@@ -150,7 +159,7 @@ describe('TextStep', () => {
       hideUserAvatar: false,
       avatarStyle: {},
       bubbleStyle: {},
-      triggerNextStep: () => {},
+      triggerNextStep: () => {}
     };
 
     const wrapper = mount(<TextStep {...settings} />);
@@ -170,7 +179,7 @@ describe('TextStep', () => {
       step: {
         id: '1',
         component: <CustomComponent />,
-        waitAction: true,
+        waitAction: true
       },
       isFirst: false,
       isLast: true,
@@ -178,7 +187,7 @@ describe('TextStep', () => {
       hideUserAvatar: false,
       avatarStyle: {},
       bubbleStyle: {},
-      triggerNextStep: () => {},
+      triggerNextStep: () => {}
     };
 
     const wrapper = mount(<TextStep {...settings} />);
