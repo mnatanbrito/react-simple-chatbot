@@ -9,6 +9,16 @@ import { anonymizeString } from '../../lib/utils';
 
 const CustomComponent = () => <div />;
 
+const maskCPF = cpf => {
+  cpf = cpf || '';
+  cpf = cpf.replace(/\D/g, ''); // remove tudo o que não é dígito
+  cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // coloca um ponto entre o terceiro e o quarto dígitos
+  cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2'); // coloca um ponto entre o terceiro e o quarto dígitos
+  cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // coloca um hífen entre o terceiro e o quarto dígitos
+
+  return cpf;
+};
+
 describe('TextStep', () => {
   describe('Bot text', () => {
     const settings = {
@@ -140,6 +150,73 @@ describe('TextStep', () => {
 
       expect(tsWrapper.find(Bubble).text()).to.be.equal(anonymizeString('Hello'));
     });
+
+    it('it should render text with mask correctly', () => {
+      const withMaskedText = {
+        ...settings,
+        step: {
+          ...settings.step,
+          sensitiveData: false,
+          message: '05565668322',
+          mask: value => {
+            return maskCPF(value);
+          }
+        }
+      };
+      const tsWrapper = mount(
+        <TextStep {...withMaskedText} isFirst={false} isLast={false} hideUserAvatar={true} />
+      );
+      tsWrapper.setState({ loading: false });
+
+      expect(tsWrapper.find(Bubble).text()).to.be.equal(maskCPF('05565668322'));
+    });
+
+    it('it should wait successful promise-based validator', () => {
+      const withPromiseValidator = {
+        ...settings,
+        step: {
+          ...settings.step,
+          sensitiveData: false,
+          message: '05565668322',
+          mask: value => {
+            return maskCPF(value);
+          },
+          validator: () => {
+            return Promise.resolve(true);
+          }
+        }
+      };
+      const tsWrapper = mount(
+        <TextStep {...withPromiseValidator} isFirst={false} isLast={false} hideUserAvatar={true} />
+      );
+      tsWrapper.setState({ loading: false });
+
+      expect(tsWrapper.find(Bubble).text()).to.be.equal(maskCPF('05565668322'));
+    });
+
+    //TODO: desenvolver teste para o caso de validador retornando Promise
+    // it('it should wait unsuccessful promise-based validator', () => {
+    //   const withPromiseValidator = {
+    //     ...settings,
+    //     step: {
+    //       ...settings.step,
+    //       sensitiveData: false,
+    //       message: '05565668322',
+    //       mask: value => {
+    //         return maskCPF(value);
+    //       },
+    //       validator: () => {
+    //         return Promise.reject('CPF inválido!');
+    //       }
+    //     }
+    //   };
+    //   const tsWrapper = mount(
+    //     <TextStep {...withPromiseValidator} isFirst={false} isLast={false} hideUserAvatar={true} />
+    //   );
+    //   tsWrapper.setState({ loading: false });
+
+    //   expect(tsWrapper.find(Bubble).text()).to.be.equal('CPF inválido!');
+    // });
   });
 
   describe('Function text', () => {

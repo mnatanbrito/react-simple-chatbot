@@ -1,6 +1,9 @@
+import React from 'react';
 import styled, { css } from 'styled-components';
-import defaultTheme from '../theme';
+
 import { pulse } from '../common/animations';
+import defaultTheme from '../theme';
+import Spinner from './Spinner';
 
 const fillFunc = props => {
   const { speaking, invalid, theme } = props;
@@ -39,8 +42,17 @@ const SubmitButton = styled.button`
   }
 `;
 
-SubmitButton.defaultProps = {
-  theme: defaultTheme
+const WrappedSubmitButton = ({ validating, ...rest }) => {
+  if (validating) {
+    return <Spinner theme={rest.theme} />;
+  }
+
+  return <SubmitButton {...rest} />;
 };
 
-export default SubmitButton;
+WrappedSubmitButton.defaultProps = {
+  theme: defaultTheme,
+  validating: false
+};
+
+export default WrappedSubmitButton;

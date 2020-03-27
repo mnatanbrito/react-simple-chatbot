@@ -16,9 +16,10 @@ import {
   Input,
   SubmitButton
 } from './components';
+import defaultTheme from './theme';
 import Recognition from './recognition';
 import { ChatIcon, CloseIcon, SubmitIcon, MicIcon } from './icons';
-import { isMobile } from './utils';
+import { isMobile, isPromise } from './utils';
 import { speakFn } from './speechSynthesis';
 
 class ChatBot extends Component {
@@ -51,7 +52,8 @@ class ChatBot extends Component {
       inputInvalid: false,
       speaking: false,
       recognitionEnable: props.recognitionEnable && Recognition.isSupported(),
-      defaultUserSettings: {}
+      defaultUserSettings: {},
+      validating: false
     };
 
     this.speak = speakFn(props.speechSynthesis);
@@ -444,36 +446,112 @@ class ChatBot extends Component {
   submitUserMessage = () => {
     const { defaultUserSettings, inputValue, previousSteps, renderedSteps } = this.state;
     let { currentStep } = this.state;
-
     const isInvalid = currentStep.validator && this.checkInvalidInput();
 
-    if (!isInvalid) {
-      const step = {
-        message: inputValue,
-        value: inputValue
-      };
-
-      currentStep = Object.assign({}, defaultUserSettings, currentStep, step);
-
-      renderedSteps.push(currentStep);
-      previousSteps.push(currentStep);
-
+    if (isPromise(isInvalid)) {
       this.setState(
         {
-          currentStep,
-          renderedSteps,
-          previousSteps,
           disabled: true,
-          inputValue: ''
+          validating: true
         },
         () => {
-          if (this.input) {
-            this.input.blur();
-          }
+          isInvalid
+            .then(() => {
+              const step = {
+                message: inputValue,
+                value: inputValue
+              };
+
+              currentStep = Object.assign({}, defaultUserSettings, currentStep, step);
+
+              renderedSteps.push(currentStep);
+              previousSteps.push(currentStep);
+
+              this.setState(
+                {
+                  currentStep,
+                  renderedSteps,
+                  previousSteps,
+                  disabled: true,
+                  inputValue: ''
+                },
+                () => {
+                  if (this.input) {
+                    this.input.blur();
+                  }
+                }
+              );
+            })
+            .catch(errorMessage => {
+              this.markAsInvalidInput(errorMessage, this.state.inputValue);
+            })
+            .finally(() => {
+              this.setState({
+                validating: false
+              });
+            });
         }
       );
+    } else {
+      if (!isInvalid) {
+        const step = {
+          message: inputValue,
+          value: inputValue
+        };
+
+        currentStep = Object.assign({}, defaultUserSettings, currentStep, step);
+
+        renderedSteps.push(currentStep);
+        previousSteps.push(currentStep);
+
+        this.setState(
+          {
+            currentStep,
+            renderedSteps,
+            previousSteps,
+            disabled: true,
+            inputValue: ''
+          },
+          () => {
+            if (this.input) {
+              this.input.blur();
+            }
+          }
+        );
+      }
     }
   };
+
+  markAsInvalidInput(result, value) {
+    const { inputValue } = this.state;
+    const { enableMobileAutoFocus } = this.props;
+
+    this.setState(
+      {
+        inputValue: result,
+        inputInvalid: true,
+        disabled: true
+      },
+      () => {
+        setTimeout(() => {
+          this.setState(
+            {
+              inputValue: inputValue,
+              inputInvalid: false,
+              disabled: false
+            },
+            () => {
+              if (enableMobileAutoFocus || !isMobile()) {
+                if (this.input) {
+                  this.input.focus();
+                }
+              }
+            }
+          );
+        }, 2000);
+      }
+    );
+  }
 
   checkInvalidInput = () => {
     const { enableMobileAutoFocus } = this.props;
@@ -481,34 +559,39 @@ class ChatBot extends Component {
     const result = currentStep.validator(inputValue);
     const value = inputValue;
 
-    if (typeof result !== 'boolean' || !result) {
-      this.setState(
-        {
-          inputValue: result.toString(),
-          inputInvalid: true,
-          disabled: true
-        },
-        () => {
-          setTimeout(() => {
-            this.setState(
-              {
-                inputValue: value,
-                inputInvalid: false,
-                disabled: false
-              },
-              () => {
-                if (enableMobileAutoFocus || !isMobile()) {
-                  if (this.input) {
-                    this.input.focus();
+    /* in case the validator function returned a Promise object, first resolve it */
+    if (isPromise(result)) {
+      return result;
+    } else {
+      if (typeof result !== 'boolean' || !result) {
+        this.setState(
+          {
+            inputValue: result.toString(),
+            inputInvalid: true,
+            disabled: true
+          },
+          () => {
+            setTimeout(() => {
+              this.setState(
+                {
+                  inputValue: value,
+                  inputInvalid: false,
+                  disabled: false
+                },
+                () => {
+                  if (enableMobileAutoFocus || !isMobile()) {
+                    if (this.input) {
+                      this.input.focus();
+                    }
                   }
                 }
-              }
-            );
-          }, 2000);
-        }
-      );
+              );
+            }, 2000);
+          }
+        );
 
-      return true;
+        return true;
+      }
     }
 
     return false;
@@ -595,7 +678,8 @@ class ChatBot extends Component {
       opened,
       renderedSteps,
       speaking,
-      recognitionEnable
+      recognitionEnable,
+      validating
     } = this.state;
     const {
       className,
@@ -707,8 +791,10 @@ class ChatBot extends Component {
                   style={submitButtonStyle}
                   onClick={this.handleSubmitButton}
                   invalid={inputInvalid}
+                  validating={validating}
                   disabled={disabled}
                   speaking={speaking}
+                  spinnerColor={defaultTheme.userFontColor}
                 >
                   {icon}
                 </SubmitButton>

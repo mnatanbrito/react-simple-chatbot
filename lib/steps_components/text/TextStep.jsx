@@ -37,7 +37,7 @@ class TextStep extends Component {
 
   renderMessage = () => {
     const { step, steps, previousStep, triggerNextStep } = this.props;
-    const { component, sensitiveData } = step;
+    const { component, sensitiveData, mask } = step;
 
     if (component) {
       return React.cloneElement(component, {
@@ -48,7 +48,11 @@ class TextStep extends Component {
       });
     }
 
-    return sensitiveData ? anonymizeString(this.getMessage()) : this.getMessage();
+    return sensitiveData
+      ? anonymizeString(this.getMessage())
+      : mask
+      ? mask(this.getMessage())
+      : this.getMessage();
   };
 
   render() {
@@ -114,7 +118,8 @@ TextStep.propTypes = {
   speak: PropTypes.func,
   step: PropTypes.objectOf(PropTypes.any).isRequired,
   steps: PropTypes.objectOf(PropTypes.any),
-  triggerNextStep: PropTypes.func.isRequired
+  triggerNextStep: PropTypes.func.isRequired,
+  mask: PropTypes.func
 };
 
 TextStep.defaultProps = {
@@ -122,7 +127,8 @@ TextStep.defaultProps = {
   previousStep: {},
   previousValue: '',
   speak: () => {},
-  steps: {}
+  steps: {},
+  mask: null
 };
 
 export default TextStep;
