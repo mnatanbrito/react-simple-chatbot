@@ -482,8 +482,9 @@ class ChatBot extends Component {
                 }
               );
             })
+            // eslint-disable-next-line
             .catch(errorMessage => {
-              this.markAsInvalidInput(errorMessage, this.state.inputValue);
+              this.markAsInvalidInput(errorMessage, inputValue);
             })
             .finally(() => {
               this.setState({
@@ -492,37 +493,89 @@ class ChatBot extends Component {
             });
         }
       );
-    } else {
-      if (!isInvalid) {
-        const step = {
-          message: inputValue,
-          value: inputValue
-        };
+    } else if (!isInvalid) {
+      const step = {
+        message: inputValue,
+        value: inputValue
+      };
 
-        currentStep = Object.assign({}, defaultUserSettings, currentStep, step);
+      currentStep = Object.assign({}, defaultUserSettings, currentStep, step);
 
-        renderedSteps.push(currentStep);
-        previousSteps.push(currentStep);
+      renderedSteps.push(currentStep);
+      previousSteps.push(currentStep);
 
-        this.setState(
-          {
-            currentStep,
-            renderedSteps,
-            previousSteps,
-            disabled: true,
-            inputValue: ''
-          },
-          () => {
-            if (this.input) {
-              this.input.blur();
-            }
+      this.setState(
+        {
+          currentStep,
+          renderedSteps,
+          previousSteps,
+          disabled: true,
+          inputValue: ''
+        },
+        () => {
+          if (this.input) {
+            this.input.blur();
           }
-        );
-      }
+        }
+      );
     }
   };
 
-  markAsInvalidInput(result, value) {
+  checkInvalidInput = () => {
+    const { enableMobileAutoFocus } = this.props;
+    const { currentStep, inputValue } = this.state;
+    const result = currentStep.validator(inputValue);
+    const value = inputValue;
+
+    /* in case the validator function returned a Promise object, first resolve it */
+    if (isPromise(result)) {
+      return result;
+    }
+
+    if (typeof result !== 'boolean' || !result) {
+      this.setState(
+        {
+          inputValue: result.toString(),
+          inputInvalid: true,
+          disabled: true
+        },
+        () => {
+          setTimeout(() => {
+            this.setState(
+              {
+                inputValue: value,
+                inputInvalid: false,
+                disabled: false
+              },
+              () => {
+                if (enableMobileAutoFocus || !isMobile()) {
+                  if (this.input) {
+                    this.input.focus();
+                  }
+                }
+              }
+            );
+          }, 2000);
+        }
+      );
+
+      return true;
+    }
+
+    return false;
+  };
+
+  toggleChatBot = opened => {
+    const { toggleFloating } = this.props;
+
+    if (toggleFloating) {
+      toggleFloating({ opened });
+    } else {
+      this.setState({ opened });
+    }
+  };
+
+  markAsInvalidInput(result) {
     const { inputValue } = this.state;
     const { enableMobileAutoFocus } = this.props;
 
@@ -536,7 +589,7 @@ class ChatBot extends Component {
         setTimeout(() => {
           this.setState(
             {
-              inputValue: inputValue,
+              inputValue,
               inputInvalid: false,
               disabled: false
             },
@@ -552,60 +605,6 @@ class ChatBot extends Component {
       }
     );
   }
-
-  checkInvalidInput = () => {
-    const { enableMobileAutoFocus } = this.props;
-    const { currentStep, inputValue } = this.state;
-    const result = currentStep.validator(inputValue);
-    const value = inputValue;
-
-    /* in case the validator function returned a Promise object, first resolve it */
-    if (isPromise(result)) {
-      return result;
-    } else {
-      if (typeof result !== 'boolean' || !result) {
-        this.setState(
-          {
-            inputValue: result.toString(),
-            inputInvalid: true,
-            disabled: true
-          },
-          () => {
-            setTimeout(() => {
-              this.setState(
-                {
-                  inputValue: value,
-                  inputInvalid: false,
-                  disabled: false
-                },
-                () => {
-                  if (enableMobileAutoFocus || !isMobile()) {
-                    if (this.input) {
-                      this.input.focus();
-                    }
-                  }
-                }
-              );
-            }, 2000);
-          }
-        );
-
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  toggleChatBot = opened => {
-    const { toggleFloating } = this.props;
-
-    if (toggleFloating) {
-      toggleFloating({ opened });
-    } else {
-      this.setState({ opened });
-    }
-  };
 
   renderStep = (step, index) => {
     const { renderedSteps } = this.state;
