@@ -28,28 +28,24 @@ const maskCPF = cpf => {
 const steps = [
   {
     id: 'initial',
-    message: 'Type your CPF',
-    trigger: 'withMask'
+    message: 'Type your password:',
+    trigger: 'inputPassword'
   },
   {
-    id: 'withMask',
+    id: 'inputPassword',
     user: true,
-    mask: value => {
-      return maskCPF(value);
-    },
     inputAttributes: {
-      maxLength: 14,
-      onKeyUp: evt => {
-        evt.target.value = maskCPF(evt.target.value);
+      type: 'password',
+      maxLength: 20
+    },
+    validator: senha => {
+      if ((senha || '').length < 8) {
+        return 'Senha muito curta';
       }
+
+      return true;
     },
-    validator: () => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve('CPF inválido!');
-        }, 3000);
-      });
-    },
+    sensitiveData: true,
     trigger: 'final'
   },
   {

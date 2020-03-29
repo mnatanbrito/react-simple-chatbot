@@ -766,21 +766,63 @@ class ChatBot extends Component {
           </Content>
           <Footer className="rsc-footer" style={footerStyle}>
             {!currentStep.hideInput && (
-              <Input
-                type="textarea"
-                style={inputStyle}
-                ref={this.setInputRef}
-                className="rsc-input"
-                placeholder={inputInvalid ? '' : inputPlaceholder}
-                onKeyPress={this.handleKeyPress}
-                onChange={this.onValueChange}
-                value={inputValue}
-                floating={floating}
-                invalid={inputInvalid}
-                disabled={disabled}
-                hasButton={!hideSubmitButton}
-                {...inputAttributesOverride}
-              />
+              <>
+                {inputAttributesOverride.type === 'password' && (
+                  <>
+                    {inputInvalid && (
+                      <Input
+                        type="textarea"
+                        style={inputStyle}
+                        ref={this.setInputRef}
+                        className="rsc-input"
+                        placeholder={inputInvalid ? '' : inputPlaceholder}
+                        onKeyPress={this.handleKeyPress}
+                        onChange={this.onValueChange}
+                        value={inputValue}
+                        floating={floating}
+                        invalid={inputInvalid}
+                        disabled={disabled}
+                        hasButton={!hideSubmitButton}
+                      />
+                    )}
+
+                    {!inputInvalid && (
+                      <Input
+                        type="textarea"
+                        style={inputStyle}
+                        ref={this.setInputRef}
+                        className="rsc-input"
+                        placeholder={inputInvalid ? '' : inputPlaceholder}
+                        onKeyPress={this.handleKeyPress}
+                        onChange={this.onValueChange}
+                        value={inputValue}
+                        floating={floating}
+                        invalid={inputInvalid}
+                        disabled={disabled}
+                        hasButton={!hideSubmitButton}
+                        {...inputAttributesOverride}
+                      />
+                    )}
+                  </>
+                )}
+                {inputAttributesOverride.type !== 'password' && (
+                  <Input
+                    type="textarea"
+                    style={inputStyle}
+                    ref={this.setInputRef}
+                    className="rsc-input"
+                    placeholder={inputInvalid ? '' : inputPlaceholder}
+                    onKeyPress={this.handleKeyPress}
+                    onChange={this.onValueChange}
+                    value={inputValue}
+                    floating={floating}
+                    invalid={inputInvalid}
+                    disabled={disabled}
+                    hasButton={!hideSubmitButton}
+                    {...inputAttributesOverride}
+                  />
+                )}
+              </>
             )}
             <div style={controlStyle} className="rsc-controls">
               {!currentStep.hideInput && !currentStep.hideExtraControl && customControl}
