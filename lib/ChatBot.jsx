@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Random from 'random-id';
+
 import { CustomStep, OptionsStep, TextStep } from './steps_components';
 import schema from './schemas/schema';
 import * as storage from './storage';
@@ -16,11 +17,12 @@ import {
   Input,
   SubmitButton
 } from './components';
-import defaultTheme from './theme';
-import Recognition from './recognition';
 import { ChatIcon, CloseIcon, SubmitIcon, MicIcon } from './icons';
 import { isMobile, isPromise } from './utils';
 import { speakFn } from './speechSynthesis';
+import defaultTheme from './theme';
+import Recognition from './recognition';
+import DeltaLogo from './components/DeltaLogo';
 
 class ChatBot extends Component {
   /* istanbul ignore next */
@@ -764,6 +766,7 @@ class ChatBot extends Component {
           >
             {renderedSteps.map(this.renderStep)}
           </Content>
+
           <Footer className="rsc-footer" style={footerStyle}>
             {!currentStep.hideInput && (
               <>
@@ -843,6 +846,7 @@ class ChatBot extends Component {
             </div>
           </Footer>
         </ChatBotContainer>
+        <DeltaLogo floating={floating} floatingStyle={floatingStyle} opened={opened} width={width} />
       </div>
     );
   }
