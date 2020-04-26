@@ -1,5 +1,6 @@
 import React from 'react';
 import { ThemeProvider } from 'styled-components';
+
 import ChatBot from '../../lib/index';
 
 const otherFontTheme = {

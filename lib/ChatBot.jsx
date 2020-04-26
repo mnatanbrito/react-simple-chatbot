@@ -702,7 +702,10 @@ class ChatBot extends Component {
       style,
       submitButtonStyle,
       width,
-      height
+      height,
+      logoImage,
+      logoAlt,
+      logoClass
     } = this.props;
 
     const header = headerComponent || (
@@ -846,18 +849,26 @@ class ChatBot extends Component {
             </div>
           </Footer>
         </ChatBotContainer>
-        <DeltaLogo
-          floating={floating}
-          floatingStyle={floatingStyle}
-          opened={opened}
-          width={width}
-        />
+        {!!logoImage && (
+          <DeltaLogo
+            logoImage={logoImage}
+            logoClass={logoClass}
+            logoAlt={logoAlt}
+            floating={floating}
+            floatingStyle={floatingStyle}
+            opened={opened}
+            width={width}
+          />
+        )}
       </div>
     );
   }
 }
 
 ChatBot.propTypes = {
+  logoImage: PropTypes.string,
+  logoAlt: PropTypes.string,
+  logoClass: PropTypes.string,
   avatarStyle: PropTypes.objectOf(PropTypes.any),
   botAvatar: PropTypes.string,
   botDelay: PropTypes.number,
@@ -910,6 +921,9 @@ ChatBot.propTypes = {
 };
 
 ChatBot.defaultProps = {
+  logoImage: null,
+  logoAlt: null,
+  logoClass: null,
   avatarStyle: {},
   botDelay: 1000,
   bubbleOptionStyle: {},

@@ -27,27 +27,16 @@ const DeltaLogo = styled.div`
     flex-direction: row;
     justify-content: flex-end;
   }
-
-  .powered,
-  .deltahub {
-    font-family: ${({ theme }) => theme.fontFamily};
-  }
-
-  .deltahub {
-    color: #b60000;
-  }
 `;
 
 DeltaLogo.defaultProps = {
   theme: defaultTheme
 };
 
-export default ({ floating, floatingStyle, opened, width }) => (
+export default ({ logoImage, logoAlt, logoClass, floating, floatingStyle, opened, width }) => (
   <DeltaLogo floating={floating} floatingStyle={floatingStyle} opened={opened} width={width}>
     <div className="powered-by-wrapper">
-      <span className="powered">
-        Powered by <strong className="deltahub">DeltaHub</strong>{' '}
-      </span>
+      <img src={logoImage} alt={logoAlt} className={logoClass} />
     </div>
   </DeltaLogo>
 );
