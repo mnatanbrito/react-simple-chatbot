@@ -846,7 +846,12 @@ class ChatBot extends Component {
             </div>
           </Footer>
         </ChatBotContainer>
-        <DeltaLogo floating={floating} floatingStyle={floatingStyle} opened={opened} width={width} />
+        <DeltaLogo
+          floating={floating}
+          floatingStyle={floatingStyle}
+          opened={opened}
+          width={width}
+        />
       </div>
     );
   }
