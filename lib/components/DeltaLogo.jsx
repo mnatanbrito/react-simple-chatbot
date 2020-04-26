@@ -8,7 +8,6 @@ const DeltaLogo = styled.div`
   position: relative;
   top: 10px;
   width: ${({ width }) => width};
-  height: ${({ height }) => height};
   transform: ${({ opened }) => (opened ? 'scale(1)' : 'scale(0)')};
   transform-origin: ${({ floatingStyle }) => floatingStyle.transformOrigin || 'bottom right'};
   transition: transform 0.3s ease;
@@ -16,7 +15,6 @@ const DeltaLogo = styled.div`
   @media screen and (max-width: 568px) {
     bottom: 0 !important;
     left: initial !important;
-    height: 100%;
     right: 0 !important;
     width: 100%;
   }
